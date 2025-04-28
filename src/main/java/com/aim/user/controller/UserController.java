@@ -17,7 +17,7 @@ public class UserController {
     public String login(@RequestBody LoginRequest loginRequest) {
         String username = loginRequest.getUsername();
         String password = loginRequest.getPassword();
-        String token = userService.login(username, password);
+        String token = userService.login(loginRequest);
         return "generated-token";
     }
 
