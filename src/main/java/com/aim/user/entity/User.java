@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 public class User extends BaseEntity {
     @Column(nullable = false, unique = true, length = 20)
-    String userName;
+    String username;
 
     @Column(nullable = false, length = 20)
     String password;

@@ -1,5 +1,6 @@
 package com.aim.user.service;
 
+import com.aim.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.aim.user.dto.response.RegisterRequest;
