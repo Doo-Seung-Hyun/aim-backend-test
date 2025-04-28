@@ -1,7 +1,9 @@
 package com.aim.common.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.proxy.HibernateProxy;
 
@@ -11,6 +13,7 @@ import java.util.Objects;
 @MappedSuperclass
 @Getter
 @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class BaseEntity {
 
     @Id
