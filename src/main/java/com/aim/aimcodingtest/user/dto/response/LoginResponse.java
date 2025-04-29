@@ -12,6 +12,7 @@ public class LoginResponse {
     String username;
     String name;
     String email;
+    String role;
     String phoneNumber;
     LocalDateTime loggedInAt;
 

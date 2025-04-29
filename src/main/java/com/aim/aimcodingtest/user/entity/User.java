@@ -1,10 +1,12 @@
 package com.aim.aimcodingtest.user.entity;
 
 import com.aim.aimcodingtest.common.entity.BaseEntity;
+import com.aim.aimcodingtest.user.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
+@Table(name = "\"user\"")
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -18,6 +20,9 @@ public class User extends BaseEntity {
 
     @Column(nullable = false, length = 20)
     String name;
+
+    @Enumerated(EnumType.STRING)
+    Role role;
 
     @Column(length = 100)
     String email;

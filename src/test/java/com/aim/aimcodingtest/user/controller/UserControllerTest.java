@@ -1,8 +1,12 @@
 package com.aim.aimcodingtest.user.controller;
 
 import com.aim.aimcodingtest.common.config.SecurityConfig;
+import com.aim.aimcodingtest.common.exception.ApiException;
+import com.aim.aimcodingtest.common.exception.ErrorCode;
 import com.aim.aimcodingtest.user.dto.request.LoginRequest;
+import com.aim.aimcodingtest.user.dto.request.RegisterRequest;
 import com.aim.aimcodingtest.user.dto.response.LoginResponse;
+import com.aim.aimcodingtest.user.dto.response.RegisterResponse;
 import com.aim.aimcodingtest.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,9 +38,33 @@ class UserControllerTest {
     UserService userService;
 
     LoginRequest loginRequest;
+    RegisterRequest registerRequest;
+
+    String validUsername;
+    String invalidUsername;
+    String validPassword;
+    String invalidPassword;
+    String validEmail;
+    String invalidEmail;
+    String name;
+
     @BeforeEach
     void setUp() {
+        validUsername = "valid-username";
+        invalidUsername = "ab1";
+        validPassword = "valid-password1!";
+        invalidPassword = "invalidpassword1";
+        name = "홍길동";
+        validEmail = "doosh17@naver.com";
+        invalidEmail = "doosh17";
+
         loginRequest = LoginRequest.builder().username("test-user").password("test-password").build();
+        registerRequest = RegisterRequest.builder()
+                .username(validUsername)
+                .password(validPassword)
+                .name(name)
+                .email(validEmail)
+                .build();
     }
 
     @Test
@@ -47,5 +75,42 @@ class UserControllerTest {
                         .content(mapper.writeValueAsString(loginRequest))
                 ).andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void 로그인_실패() throws Exception {
+        when(userService.login(any(LoginRequest.class))).thenThrow(new ApiException(ErrorCode.LOGIN_FAILED));
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/users/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(loginRequest))
+                ).andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void 회원가입_정상() throws Exception {
+        when(userService.register(any(RegisterRequest.class))).thenReturn(mock(RegisterResponse.class));
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/users/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(registerRequest))
+                ).andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void 회원가입_validation_실패() throws Exception {
+        registerRequest = RegisterRequest.builder()
+                .username(invalidUsername)
+                .password(invalidPassword)
+                .name("")
+                .email(invalidEmail)
+                .build();
+
+        when(userService.register(any(RegisterRequest.class))).thenReturn(mock(RegisterResponse.class));
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/users/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(registerRequest))
+                ).andDo(print())
+                .andExpect(status().isBadRequest());
     }
 }
