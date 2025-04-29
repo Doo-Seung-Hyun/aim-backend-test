@@ -1,4 +1,4 @@
-package com.aim.common.dto.response;
+package com.aim.aimcodingtest.common.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

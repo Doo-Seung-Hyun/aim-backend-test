@@ -1,4 +1,4 @@
-package com.aim.common.entity;
+package com.aim.aimcodingtest.common.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

@@ -1,6 +1,6 @@
-package com.aim.common.dto.response;
+package com.aim.aimcodingtest.common.dto.response;
 
-import com.aim.common.exception.ErrorCode;
+import com.aim.aimcodingtest.common.exception.ErrorCode;
 import lombok.Builder;
 import lombok.Getter;
 

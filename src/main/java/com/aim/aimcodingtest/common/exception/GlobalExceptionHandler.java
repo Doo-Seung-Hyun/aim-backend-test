@@ -1,7 +1,7 @@
-package com.aim.common.exception;
+package com.aim.aimcodingtest.common.exception;
 
-import com.aim.common.dto.response.ApiResponse;
-import com.aim.common.dto.response.ErrorResponse;
+import com.aim.aimcodingtest.common.dto.response.ApiResponse;
+import com.aim.aimcodingtest.common.dto.response.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

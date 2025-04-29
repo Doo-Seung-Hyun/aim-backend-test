@@ -1,4 +1,4 @@
-package com.aim.common.exception;
+package com.aim.aimcodingtest.common.exception;
 
 import lombok.Getter;
 
