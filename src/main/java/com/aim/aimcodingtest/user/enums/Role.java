@@ -8,7 +8,7 @@ public enum Role {
     USER("ROLE_USER"),
     MANAGER("ROLE_MANAGER");
 
-    private String authority;
+    private final String authority;
 
     Role(String authority) {
         this.authority = authority;
