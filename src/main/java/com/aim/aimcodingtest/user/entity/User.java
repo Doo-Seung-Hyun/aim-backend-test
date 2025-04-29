@@ -1,6 +1,6 @@
 package com.aim.aimcodingtest.user.entity;
 
-import com.aim.common.entity.BaseEntity;
+import com.aim.aimcodingtest.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
