@@ -1,12 +1,12 @@
-package com.aim.user.controller;
+package com.aim.aimcodingtest.user.controller;
 
+import com.aim.aimcodingtest.user.dto.request.LoginRequest;
+import com.aim.aimcodingtest.user.dto.response.RegisterRequest;
+import com.aim.aimcodingtest.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import com.aim.user.dto.request.LoginRequest;
-import com.aim.user.dto.response.RegisterRequest;
-import com.aim.user.service.UserService;
 
 @RestController("/api/users")
 @RequiredArgsConstructor

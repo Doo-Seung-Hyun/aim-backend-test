@@ -1,4 +1,4 @@
-package com.aim.user.dto.request;
+package com.aim.aimcodingtest.user.dto.request;
 
 import lombok.Builder;
 import lombok.Getter;

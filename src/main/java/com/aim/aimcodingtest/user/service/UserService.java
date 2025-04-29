@@ -1,14 +1,14 @@
-package com.aim.user.service;
+package com.aim.aimcodingtest.user.service;
 
-import com.aim.common.exception.ApiException;
-import com.aim.common.exception.ErrorCode;
-import com.aim.user.dto.request.LoginRequest;
-import com.aim.user.dto.response.RegisterResponse;
-import com.aim.user.entity.User;
-import com.aim.user.repository.UserRepository;
+import com.aim.aimcodingtest.common.exception.ApiException;
+import com.aim.aimcodingtest.common.exception.ErrorCode;
+import com.aim.aimcodingtest.user.dto.request.LoginRequest;
+import com.aim.aimcodingtest.user.dto.response.RegisterRequest;
+import com.aim.aimcodingtest.user.dto.response.RegisterResponse;
+import com.aim.aimcodingtest.user.entity.User;
+import com.aim.aimcodingtest.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.aim.user.dto.response.RegisterRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service

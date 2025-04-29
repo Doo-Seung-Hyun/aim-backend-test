@@ -1,6 +1,6 @@
-package com.aim.user.dto.response;
+package com.aim.aimcodingtest.user.dto.response;
 
-import com.aim.user.entity.User;
+import com.aim.aimcodingtest.user.entity.User;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

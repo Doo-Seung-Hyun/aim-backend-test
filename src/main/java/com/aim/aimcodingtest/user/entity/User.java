@@ -1,4 +1,4 @@
-package com.aim.user.entity;
+package com.aim.aimcodingtest.user.entity;
 
 import com.aim.common.entity.BaseEntity;
 import jakarta.persistence.*;
