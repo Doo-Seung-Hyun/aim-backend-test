@@ -3,6 +3,7 @@ package com.aim.aimcodingtest.user.controller;
 import com.aim.aimcodingtest.common.config.SecurityConfig;
 import com.aim.aimcodingtest.common.exception.ApiException;
 import com.aim.aimcodingtest.common.exception.ErrorCode;
+import com.aim.aimcodingtest.common.listener.CustomLogoutHandler;
 import com.aim.aimcodingtest.user.dto.request.LoginRequest;
 import com.aim.aimcodingtest.user.dto.request.RegisterRequest;
 import com.aim.aimcodingtest.user.dto.response.LoginResponse;
@@ -20,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -36,6 +38,9 @@ class UserControllerTest {
 
     @MockitoBean
     UserService userService;
+
+    @MockitoBean
+    private CustomLogoutHandler customLogoutHandler;
 
     LoginRequest loginRequest;
     RegisterRequest registerRequest;
@@ -69,7 +74,7 @@ class UserControllerTest {
 
     @Test
     void 로그인_정상() throws Exception {
-        when(userService.login(any(LoginRequest.class))).thenReturn(mock(LoginResponse.class));
+        when(userService.login(anyString(), anyString())).thenReturn(mock(LoginResponse.class));
         mockMvc.perform(MockMvcRequestBuilders.post("/api/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(loginRequest))
@@ -79,7 +84,7 @@ class UserControllerTest {
 
     @Test
     void 로그인_실패() throws Exception {
-        when(userService.login(any(LoginRequest.class))).thenThrow(new ApiException(ErrorCode.LOGIN_FAILED));
+        when(userService.login(anyString(), anyString())).thenThrow(new ApiException(ErrorCode.LOGIN_FAILED));
         mockMvc.perform(MockMvcRequestBuilders.post("/api/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(loginRequest))

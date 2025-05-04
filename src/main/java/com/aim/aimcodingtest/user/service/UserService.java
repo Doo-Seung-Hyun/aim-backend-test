@@ -2,7 +2,6 @@ package com.aim.aimcodingtest.user.service;
 
 import com.aim.aimcodingtest.common.exception.ApiException;
 import com.aim.aimcodingtest.common.exception.ErrorCode;
-import com.aim.aimcodingtest.user.dto.request.LoginRequest;
 import com.aim.aimcodingtest.user.dto.request.RegisterRequest;
 import com.aim.aimcodingtest.user.dto.response.LoginResponse;
 import com.aim.aimcodingtest.user.dto.response.LogoutResponse;
@@ -11,20 +10,20 @@ import com.aim.aimcodingtest.user.entity.User;
 import com.aim.aimcodingtest.user.repository.UserRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -33,61 +32,60 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final HttpServletRequest request;
 
+    /**
+     * 로그인
+     */
     @Transactional(readOnly = true)
-    public LoginResponse login(LoginRequest loginRequest) {
-        String username = loginRequest.getUsername();
-        String password = loginRequest.getPassword();
-
+    public LoginResponse login(String username, String password) throws ServletException {
         User user;
         try {
-            //username으로 user를 찾지 못하면 오류
-            user = userRepository.findByUsername(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("Username : " + username + "을 찾을 수 없습니다."));
+            // 인증
+            Authentication token = new UsernamePasswordAuthenticationToken(username, password);
+            Authentication authentication = authenticationManager.authenticate(token);
 
-            //패스워드 일치하지 않으면 오류
-            if (!passwordEncoder.matches(password, user.getPassword()))
-                throw new BadCredentialsException("Password 가 일치하지 않습니다.");
-        }catch (UsernameNotFoundException | BadCredentialsException e) {
+            // 로그인 기록
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            HttpSession session = request.getSession(true);
+            session.setAttribute(
+                    HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                    SecurityContextHolder.getContext()
+            );
+
+            // 로그인 유저정보 반환
+            user = (User) authentication.getPrincipal();
+        }catch (AuthenticationException e) {
             log.warn(String.format("로그인 실패 : %s", username));
             throw new ApiException(ErrorCode.LOGIN_FAILED);
         }
 
-        //인증 처리
-        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
-                user.getUsername()
-                , null
-                , List.of(new SimpleGrantedAuthority(user.getRole().name()))
-        ));
-
         LocalDateTime loggedInAt = LocalDateTime.now();
-        //todo : LoginHistory 구현
 
         return LoginResponse.fromUser(user, loggedInAt);
     }
 
+    /**
+     * 회원 가입
+     */
     public RegisterResponse register(RegisterRequest registerRequest) {
-        // 사용자 ID 중복 검사
+        // ID 중복 검사
         String userName = registerRequest.getUsername();
         userRepository.findByUsername(userName).ifPresent(user->{
             throw new ApiException(ErrorCode.DUPLICATED_USERNAME);
         });
 
+        User user = User.of(registerRequest);
+
+        //패스워드 암호화
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
         // 가입 진행
-        User user = userRepository.save(registerRequest.toUser());
+        user = userRepository.save(user);
         return RegisterResponse.builder()
                 .username(user.getUsername())
                 .createdAt(user.getCreatedAt())
                 .build();
-    }
-
-    public LogoutResponse logout(HttpServletRequest request) throws ServletException {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if(auth == null || !auth.isAuthenticated())
-            throw new ApiException(ErrorCode.NOT_AUTHENTICATED);
-
-        String username = auth.getName();
-        request.logout();
-        return LogoutResponse.of(username);
     }
 }

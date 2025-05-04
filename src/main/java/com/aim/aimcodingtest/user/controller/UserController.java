@@ -23,26 +23,26 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     private final UserService userService;
 
+    /**
+     * 로그인 API
+     */
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest loginRequest, HttpServletRequest servletRequest) throws ServletException {
+        String username = loginRequest.getUsername();
+        String password = loginRequest.getPassword();
         ApiResponse<LoginResponse> response = ApiResponse.success(
-                userService.login(loginRequest)
+                userService.login(username, password)
         );
         return response.toResponseEntity();
     }
 
+    /**
+     * 회원 가입 API
+     */
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<RegisterResponse>> register(@Valid @RequestBody RegisterRequest registerRequest) {
         ApiResponse<RegisterResponse> response = ApiResponse.success(
                 userService.register(registerRequest)
-        );
-        return response.toResponseEntity();
-    }
-
-    @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<LogoutResponse>> logout(HttpServletRequest request) throws ServletException {
-        ApiResponse<LogoutResponse> response = ApiResponse.success(
-                userService.logout(request)
         );
         return response.toResponseEntity();
     }

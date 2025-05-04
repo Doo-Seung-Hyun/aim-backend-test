@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.proxy.HibernateProxy;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -23,10 +26,13 @@ public abstract class BaseEntity {
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
-    @Column(nullable = false)
+
+    @Column(length = 20, nullable = false)
     private String createdBy;
 
     private LocalDateTime updatedAt;
+
+    @Column(length = 20)
     private String updatedBy;
 
     @PrePersist
@@ -41,9 +47,11 @@ public abstract class BaseEntity {
         this.updatedBy = getCurrentUserName();
     }
 
-    //todo : 로그인 사용자 정보 이름 불러오기 구현
     private String getCurrentUserName() {
-        return "to-do";
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(authentication != null && authentication.isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken))
+            return authentication.getName();
+        return "System";
     }
 
     @Override

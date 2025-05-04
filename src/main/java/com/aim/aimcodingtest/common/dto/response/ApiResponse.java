@@ -3,10 +3,12 @@ package com.aim.aimcodingtest.common.dto.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @AllArgsConstructor
 @Getter
@@ -21,7 +23,10 @@ public class ApiResponse<T> {
         return success(null);
     }
     public static <T> ApiResponse<T> success(T response) {
-        return new ApiResponse<>(false, HttpStatus.OK.value(), LocalDateTime.now(), response);
+        return new ApiResponse<>(true, HttpStatus.OK.value(), LocalDateTime.now(), response);
+    }
+    public static <T> ApiResponse<T> success(HttpStatus httpStatus,     T response) {
+        return new ApiResponse<>(true, httpStatus.value(), LocalDateTime.now(), response);
     }
     public static <T> ApiResponse<ErrorResponse> error(ErrorResponse errorResponse) {
         int HttpStatusCode =  errorResponse.getHttpStatusCode();

@@ -1,0 +1,76 @@
+
+
+###
+POST http://localhost:8080/api/users/register
+Content-Type: application/json
+
+{
+  "username": "aim-user",
+  "password": "password123!@#",
+  "name": "테스트"
+}
+
+###
+POST http://localhost:8080/api/users/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "password123!@#"
+}
+###
+POST http://localhost:8080/api/users/logout
+Content-Type: application/json
+
+{
+}
+
+###
+GET http://localhost:8080/api/accounts/2
+Content-Type: application/json
+
+{
+}
+
+
+###
+GET http://localhost:8080/api/accounts/1
+Content-Type: application/json
+
+{
+}
+
+###
+GET http://localhost:8080/api/accounts/my
+Content-Type: application/json
+
+{
+}
+
+###
+POST http://localhost:8080/api/accounts/deposit
+Content-Type: application/json
+
+{
+    "accountNumber" : "1000-2345-6789",
+    "amount": 1000000
+}
+
+###
+POST http://localhost:8080/api/accounts/withdraw
+Content-Type: application/json
+
+{
+    "accountNumber" : "123-45657-890",
+    "amount": 2200000
+}
+
+
+###
+POST http://localhost:8080/api/portfolio/advice
+Content-Type: application/json
+
+{
+    "accountNumber" : "123-45657-890",
+    "portfolioType": "DEFFENSIVE_TYPE"
+}
