@@ -21,7 +21,7 @@ public class Transaction extends BaseEntity {
     private String transactionId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id", nullable = false)
+    @JoinColumn(name = "account_id", nullable = true)
     private Account account;
 
     @Column(length = 50, nullable = false)
@@ -61,16 +61,29 @@ public class Transaction extends BaseEntity {
                 .build();
     }
 
+    public static Transaction createWithdrawTransaction(String accountNumber, long amount) {
+        String transactionId = UUID.randomUUID().toString();
+        return Transaction.builder()
+                .transactionId(transactionId)
+                .accountNumber(accountNumber)
+                .transactionType(TransactionType.WITHDRAWAL)
+                .transactionAmount(amount)
+                .transactionTime(LocalDateTime.now())
+                .build();
+    }
+
     public Transaction success(Account account) {
         this.account = account;
-        this.balanceBefore = account.getBalance() - this.transactionAmount;
+        this.balanceBefore = this.transactionType==TransactionType.DEPOSIT?
+                account.getBalance() - this.transactionAmount
+                : account.getBalance() + this.transactionAmount;
         this.balanceAfter = account.getBalance();
         return this;
     }
 
     public Transaction error(Account account, Exception exception) {
         if(account != null) {
-            this.account = account;
+//            this.account = account;
             this.balanceBefore = account.getBalance();
             this.balanceAfter = account.getBalance();
 

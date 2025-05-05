@@ -4,13 +4,13 @@ import com.aim.aimcodingtest.account.dto.response.DepositResponse;
 import com.aim.aimcodingtest.account.dto.response.WithdrawResponse;
 import com.aim.aimcodingtest.account.entity.Account;
 import com.aim.aimcodingtest.account.entity.Transaction;
-import com.aim.aimcodingtest.account.enums.TransactionType;
+import com.aim.aimcodingtest.account.repository.AccountRepository;
 import com.aim.aimcodingtest.account.repository.TransactionRepository;
-import com.aim.aimcodingtest.common.exception.ApiException;
-import com.aim.aimcodingtest.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 @Transactional
 public abstract class AbstractTransactionLoggingService implements AccountService {
     private final TransactionRepository transactionRepository;
+    private final TransactionErrorService transactionErrorService;
 
     @Override
     public DepositResponse deposit(String accountNumber, Long amount) {
@@ -39,7 +40,7 @@ public abstract class AbstractTransactionLoggingService implements AccountServic
         } catch (Exception e) {
             log.warn(e.getMessage());
             //트랜잭션 오류 기록
-            transactionRepository.save(transaction.error(account, e));
+            transactionErrorService.saveErrorTransaction(transaction.error(account, e));
             throw e;
         }
         // 트랜잭션 정상 기록
@@ -56,7 +57,7 @@ public abstract class AbstractTransactionLoggingService implements AccountServic
         WithdrawResponse temporaryResponse = null;
         try {
             // 트랜잭션 생성
-            transaction = Transaction.createDepositTransaction(accountNumber, amount);
+            transaction = Transaction.createWithdrawTransaction(accountNumber, amount);
 
             // 계좌찾기
             account = findAccountForTransaction(accountNumber);
@@ -66,9 +67,12 @@ public abstract class AbstractTransactionLoggingService implements AccountServic
         } catch (Exception e) {
             log.warn(e.getMessage());
             //트랜잭션 오류 기록
-            transactionRepository.save(transaction.error(account, e));
+            transactionErrorService.saveErrorTransaction(transaction.error(account, e));
             throw e;
         }
+        // 트랜잭션 정상 기록
+        transactionRepository.save(transaction.success(account));
+
         return temporaryResponse.complete(transaction.getTransactionId(),
                 transaction.getTransactionTime());
     }

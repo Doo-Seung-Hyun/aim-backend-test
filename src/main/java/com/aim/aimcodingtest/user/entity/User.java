@@ -13,7 +13,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Table(name = "\"user\"")
+@Table(name = "`user`")
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

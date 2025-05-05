@@ -23,8 +23,10 @@ public class AccountServiceImpl extends AbstractTransactionLoggingService {
 
     private final AccountRepository accountRepository;
 
-    public AccountServiceImpl(TransactionRepository transactionRepository, AccountRepository accountRepository) {
-        super(transactionRepository);
+    public AccountServiceImpl(TransactionRepository transactionRepository,
+                              TransactionErrorService transactionErrorService,
+                              AccountRepository accountRepository) {
+        super(transactionRepository, transactionErrorService);
         this.accountRepository = accountRepository;
     }
 

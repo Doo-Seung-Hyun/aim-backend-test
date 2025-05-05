@@ -10,7 +10,7 @@ Content-Type: application/json
   "name": "테스트"
 }
 
-###
+###7
 POST http://localhost:8080/api/users/login
 Content-Type: application/json
 
@@ -52,7 +52,7 @@ POST http://localhost:8080/api/accounts/deposit
 Content-Type: application/json
 
 {
-    "accountNumber" : "1000-2345-6789",
+    "accountNumber" : "123-45657-890",
     "amount": 1000000
 }
 
@@ -64,6 +64,27 @@ Content-Type: application/json
     "accountNumber" : "123-45657-890",
     "amount": 2200000
 }
+
+###
+POST http://localhost:8080/api/stocks
+Content-Type: application/json
+
+{
+    "code": "test",
+    "name": "테스트",
+    "price": 20000
+}
+
+###
+PUT http://localhost:8080/api/stocks/test
+Content-Type: application/json
+
+{
+    "price": 10000
+}
+
+###
+DELETE http://localhost:8080/api/stocks/test
 
 
 ###
