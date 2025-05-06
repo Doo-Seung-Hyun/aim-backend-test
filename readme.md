@@ -110,7 +110,7 @@
 
 4. 애플리케이션 접근
     - 기본 접속 주소: http://localhost:8080
-    - H2 콘솔: http://localhost:8080/h2-console (JDBC URL: jdbc:h2:mem:test)
+  ~~  - H2 콘솔: http://localhost:8080/h2-console (JDBC URL: jdbc:h2:mem:test)~~
 
 ## 주요 기능 설명
 
