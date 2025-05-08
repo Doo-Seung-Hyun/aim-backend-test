@@ -47,13 +47,13 @@ Content-Type: application/json
 {
 }
 
-###
+###입금
 POST http://localhost:8080/api/accounts/deposit
 Content-Type: application/json
 
 {
     "accountNumber" : "123-45657-890",
-    "amount": 1000000
+    "amount": 23288888
 }
 
 ###
@@ -62,7 +62,7 @@ Content-Type: application/json
 
 {
     "accountNumber" : "123-45657-890",
-    "amount": 2200000
+    "amount": 92000000
 }
 
 ###
@@ -76,18 +76,18 @@ Content-Type: application/json
 }
 
 ###
-PUT http://localhost:8080/api/stocks/test
+PUT http://localhost:8080/api/stocks/373220
 Content-Type: application/json
 
 {
-    "price": 10000
+    "price": 989000
 }
 
 ###
 DELETE http://localhost:8080/api/stocks/test
 
 
-###
+###자문요청
 POST http://localhost:8080/api/portfolio/advice
 Content-Type: application/json
 

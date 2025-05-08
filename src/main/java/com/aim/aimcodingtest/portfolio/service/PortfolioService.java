@@ -7,25 +7,22 @@ import com.aim.aimcodingtest.portfolio.entity.PortfolioAdvice;
 import com.aim.aimcodingtest.portfolio.entity.PortfolioItem;
 import com.aim.aimcodingtest.portfolio.enums.PortfolioType;
 import com.aim.aimcodingtest.portfolio.repository.PortfolioAdviceRepository;
-import com.aim.aimcodingtest.portfolio.repository.PortfolioItemRepository;
 import com.aim.aimcodingtest.stock.entity.Stock;
 import com.aim.aimcodingtest.stock.repository.StockRepository;
 import com.aim.aimcodingtest.user.entity.User;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PortfolioService {
     private final PortfolioAdviceRepository adviceRepository;
-    private final PortfolioItemRepository itemRepository;
     private final AccountServiceImpl accountService;
     private final StockRepository stockRepository;
 
@@ -55,24 +52,26 @@ public class PortfolioService {
     private List<PortfolioItem> createPortfolio(Long maxAllocateAmount, List<Stock> stocks, Long balance) {
         Map<Long, Portfolio> curr = new HashMap<>(); //현재까지의 증권조합 (가격누적합-증권코드별수량)
         List<Portfolio> candidates = new ArrayList(); //증권조합 후보
+        Set<Long> visited = new HashSet(); // 처리한적이 있는 누적투자금액목록
+        
         //증권코드별 가격 맵
         Map<String, Stock> codeStockMap = stocks.stream().collect(
                 Collectors.toMap(Stock::getCode, stock->stock));
 
         curr.put(0L, new Portfolio());
 
-        // 무한 루프 방지를 위한 카운터 추가
-        int loopCount = 0;
-        final int MAX_LOOPS = 10; // 적절한 값으로 설정
+        // 최대 탐색시간 설정
+        long limit_ms = 5000L;
+        long endTime = System.currentTimeMillis() + limit_ms;
 
-        while(curr.size() > 0 && loopCount < MAX_LOOPS) {
-            loopCount++;
-            System.out.println("Loop count: " + loopCount + ", Current combinations: " + curr.size());
-
+        while(!curr.isEmpty()) {
+            if(endTime < System.currentTimeMillis()) {
+                log.warn(String.format("최대 허용시간 %.1f초가 경과하여 추가 탐색을 중단합니다.",limit_ms/1000.0f));
+                break;
+            }
             Map<Long, Portfolio> next = new HashMap<>();
 
-            for(Map.Entry<Long, Portfolio> entry : new HashMap<>(curr).entrySet()) {
-                Long accumulated = entry.getKey(); // 현재까지의 증권조합별 총 투자금액
+            for(Map.Entry<Long, Portfolio> entry : curr.entrySet()) {
                 Portfolio portfolio = new Portfolio(entry.getValue());
 
                 for(Stock stock : stocks) {
@@ -81,21 +80,15 @@ public class PortfolioService {
 
                     //새로운 증권을 추가하는 경우 누적 투자금액 산출
                     Long newTotalAmount = newPortfolio.getTotalAmount() + stock.getPrice();
+                    
+                    //이미 처리한적이 있는 누적 투자금액은 pass
+                    if(visited.contains(newTotalAmount))
+                        continue;
 
-                    // 일치하는 조합을 찾으면
-                    if(newTotalAmount == maxAllocateAmount){
-                        newPortfolio.addStock(stock.getCode(), stock.getPrice());
-                        //portfolioItem 리스트로 변환
-                        return newPortfolio.getStockQuantityMap().entrySet().stream()
-                                .map(e->PortfolioItem.builder()
-                                        .stock(codeStockMap.get(e.getKey()))
-                                        .quantity(e.getValue())
-                                        .stockPrice(codeStockMap.get(e.getKey()).getPrice())
-                                        .build())
-                                .collect(Collectors.toList());
-                    }
+                    visited.add(newTotalAmount);
+
                     //증권조합의 누적 투자금액이 투자한도를 초과하면
-                    else if(newTotalAmount > maxAllocateAmount) {
+                    if(newTotalAmount > maxAllocateAmount) {
                         //조합 후보군에 add
                         candidates.add(new Portfolio(newPortfolio));
 
@@ -129,12 +122,19 @@ public class PortfolioService {
             curr = next;
         }
 
+        //만약 candidates가 아직 비어있다면, 마지막으로 탐색한 결과를 후보로
+        if(candidates.isEmpty()) {
+            candidates = new ArrayList<>(curr.values());
+        }
+
         // 투자한도와 가장 근접한 투자조합 선택
         Portfolio bestPortfolio = candidates.stream().min((a,b)->
                 Math.toIntExact(Math.abs(a.getTotalAmount() - maxAllocateAmount)
                         - Math.abs(b.getTotalAmount() - maxAllocateAmount))
-        ).get();
+        ).orElse(null);
 
+        if(bestPortfolio == null)
+            return List.of();
 
         //portfolioItem 리스트로 변환
         return bestPortfolio.getStockQuantityMap().entrySet().stream()
